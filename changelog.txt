@@ -1,5 +1,4 @@
 [B]1.0.1[/B]
-- mindenkinek ki kell szednie a saját TarrMobiltv[device] token-t
-  egy Chrome vagy más böngészőből.. segítség hozzá az 1. képen
+- mindenkinek ki kell szednie a saját TarrMobiltv[device] token-t egy Chrome vagy más böngészőből.. segítség hozzá az 1. képen
 [B]1.0.0[/B]
 - Első verzió
