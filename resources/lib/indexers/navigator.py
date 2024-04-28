@@ -45,7 +45,8 @@ tarr_user = addon.getSetting('username')
 tarr_user_safe = urllib.parse.quote_plus(tarr_user)
 
 tarr_pass = addon.getSetting('password')
-tarr_device = 'WI_500a8e93aefd05fbfa8bbba1faff1c21'
+tarr_device = addon.getSetting('device_token')
+tarr_device = f'WI_{tarr_device}'
 
 if not tarr_user or not tarr_pass or not tarr_device:
     xbmc.log("Username or password not set, opening settings", level=xbmc.LOGINFO)

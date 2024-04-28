@@ -3,5 +3,6 @@
     <category label="Bejelentkezés">
         <setting label="Telefonszám" type="text" id="username" default=""/>
         <setting label="Jelszó" type="text" id="password" option="hidden" default=""/>
+        <setting label="TarrMobiltv[device] (WI_ nélkül)" type="text" id="device_token" default=""/>
 	</category>
 </settings>
