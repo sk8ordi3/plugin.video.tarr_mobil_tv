@@ -46,6 +46,10 @@ tarr_user = addon.getSetting('username')
 tarr_user_safe = urllib.parse.quote_plus(tarr_user)
 tarr_pass = addon.getSetting('password')
 
+if not tarr_user or not tarr_pass:
+    xbmc.log("Username or password not set, opening settings", level=xbmc.LOGINFO)
+    addon.openSettings()
+
 def fetch_and_set_token():
     
     import requests
@@ -88,14 +92,10 @@ if not (tarr_device_WI and device_WI_timestamp_str):
 else:
     device_WI_timestamp = int(device_WI_timestamp_str)
     current_timestamp = int(time.time())
-    one_year_in_seconds = 365 * 24
+    one_year_in_seconds = 365 * 24 * 60 * 60
 
     if current_timestamp - device_WI_timestamp > one_year_in_seconds:
         fetch_and_set_token()
-
-if not tarr_user or not tarr_pass:
-    xbmc.log("Username or password not set, opening settings", level=xbmc.LOGINFO)
-    addon.openSettings()
 
 cookies = {
     'TarrMobiltv[player]': 'html5',
