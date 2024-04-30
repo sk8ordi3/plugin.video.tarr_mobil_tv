@@ -2,7 +2,7 @@
 
 '''
     TarrMobiltv Addon
-    Copyright (C) 2024 heg
+    Copyright (C) 2024 heg, vargalex
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -43,12 +43,56 @@ addon = xbmcaddon.Addon('plugin.video.tarr_mobil_tv')
 
 tarr_user = addon.getSetting('username')
 tarr_user_safe = urllib.parse.quote_plus(tarr_user)
-
 tarr_pass = addon.getSetting('password')
-tarr_device = addon.getSetting('device_token')
-tarr_device = f'WI_{tarr_device}'
 
-if not tarr_user or not tarr_pass or not tarr_device:
+def fetch_and_set_token():
+    
+    import requests
+    import time
+    import re
+    
+    randomHash = os.urandom(16).hex()
+    gen_WI_hash = f'WI_{randomHash}'
+    
+    cookies_x = {
+        'TarrMobiltv[player]': 'html5',
+        'TarrMobiltv[remember]': '1',
+        'TarrMobiltv[user]': tarr_user_safe,
+        'TarrMobiltv[pass]': tarr_pass,
+    }
+    
+    headers_x = {
+        'Accept': 'application/json, text/javascript, */*; q=0.01',
+        'Connection': 'keep-alive',
+        'Referer': f'{base_url}/',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 OPR/109.0.0.0',
+        'X-Requested-With': 'XMLHttpRequest',
+    }
+    
+    response_1 = requests.get(f'{base_url}/ajax/fp/main/device/{gen_WI_hash}', cookies=cookies_x, headers=headers_x, allow_redirects=False)
+    res_headers_1 = response_1.headers["Set-Cookie"]
+    
+    tarr_device_WI = re.findall(r'TarrMobiltv\[device\]=(WI.*?);', str(res_headers_1))[0].strip()
+    
+    xbmcaddon.Addon().setSetting('tarr_device_WI', f'{tarr_device_WI}')
+    
+    current_timestamp = int(time.time())
+    xbmcaddon.Addon().setSetting('device_WI_timestamp', f'{current_timestamp}')
+
+tarr_device_WI = addon.getSetting('tarr_device_WI')
+device_WI_timestamp_str = addon.getSetting('device_WI_timestamp')
+
+if not (tarr_device_WI and device_WI_timestamp_str):
+    fetch_and_set_token()
+else:
+    device_WI_timestamp = int(device_WI_timestamp_str)
+    current_timestamp = int(time.time())
+    one_year_in_seconds = 365 * 24
+
+    if current_timestamp - device_WI_timestamp > one_year_in_seconds:
+        fetch_and_set_token()
+
+if not tarr_user or not tarr_pass:
     xbmc.log("Username or password not set, opening settings", level=xbmc.LOGINFO)
     addon.openSettings()
 
@@ -57,7 +101,7 @@ cookies = {
     'TarrMobiltv[remember]': '1',
     'TarrMobiltv[user]': f'{tarr_user_safe}',
     'TarrMobiltv[pass]': f'{tarr_pass}',
-    'TarrMobiltv[device]': f'{tarr_device}',
+    'TarrMobiltv[device]': f'{tarr_device_WI}',
 }
 
 headers = {
