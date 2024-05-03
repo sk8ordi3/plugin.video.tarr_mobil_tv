@@ -43,7 +43,11 @@ base_url = 'https://www.tarrmobiltv.hu'
 addon = xbmcaddon.Addon('plugin.video.tarr_mobil_tv')
 
 tarr_user = addon.getSetting('username')
-tarr_user_safe = urllib.parse.quote_plus(tarr_user)
+if re.search(r'[+]', tarr_user):
+    tarr_user_safe = urllib.parse.quote_plus(tarr_user)
+else:
+    tarr_user_safe = tarr_user
+
 tarr_pass = addon.getSetting('password')
 
 if not tarr_user or not tarr_pass:
@@ -262,9 +266,9 @@ class navigator:
             'ajaxContent': '1',
         }
         
-        response = requests.post('https://www.tarrmobiltv.hu/catchup/showlist', cookies=cookies, headers=headers, data=data)
+        response = requests.post(f'{base_url}/catchup/showlist', cookies=cookies, headers=headers, data=data)
         
-        default_picture_link = "https://www.tarrmobiltv.hu/images/player-poster.jpg"
+        default_picture_link = f"{base_url}/images/player-poster.jpg"
         
         soup = BeautifulSoup(response.text, 'html.parser')
         shows = soup.find_all('div', class_='show catchup')
@@ -330,7 +334,7 @@ class navigator:
             'ajaxContent': '1',
         }
         
-        response = requests.post('https://www.tarrmobiltv.hu/vod/showlist', cookies=cookies, headers=headers, data=data)
+        response = requests.post(f'{base_url}/vod/showlist', cookies=cookies, headers=headers, data=data)
         
         soup = BeautifulSoup(response.text, 'html.parser')
         shows = soup.find_all('div', class_='show')
@@ -360,7 +364,7 @@ class navigator:
             'ajaxContent': '1',
         }
         
-        response = requests.post('https://www.tarrmobiltv.hu/vod/showtimeinfo', cookies=cookies, headers=headers, data=data)
+        response = requests.post(f'{base_url}/vod/showtimeinfo', cookies=cookies, headers=headers, data=data)
         
         soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -410,7 +414,7 @@ class navigator:
             'ajaxContent': '1',
         }
         
-        response = requests.post('https://www.tarrmobiltv.hu/vod/showlist', cookies=cookies, headers=headers, data=data)
+        response = requests.post(f'{base_url}/vod/showlist', cookies=cookies, headers=headers, data=data)
         
         soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -434,7 +438,7 @@ class navigator:
             'ajaxContent': '1',
         }
         
-        response = requests.post('https://www.tarrmobiltv.hu/vod/showtimeinfo', cookies=cookies, headers=headers, data=data)
+        response = requests.post(f'{base_url}/vod/showtimeinfo', cookies=cookies, headers=headers, data=data)
 
         soup = BeautifulSoup(response.text, 'html.parser')
         

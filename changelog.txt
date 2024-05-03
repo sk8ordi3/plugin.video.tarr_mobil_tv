@@ -1,3 +1,5 @@
+[B]1.0.2[/B]
+- felhasználónév vagy telefonszám használat hozzáadva
 [B]1.0.1[/B]
 - device token javítva
 [B]1.0.0[/B]
