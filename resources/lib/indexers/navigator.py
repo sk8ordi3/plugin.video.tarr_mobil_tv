@@ -72,10 +72,18 @@ def fetch_and_set_token():
     
     headers_x = {
         'Accept': 'application/json, text/javascript, */*; q=0.01',
+        'Accept-Language': 'hu-HU,hu;q=0.9,en-US;q=0.8,en;q=0.7',
         'Connection': 'keep-alive',
-        'Referer': f'{base_url}/',
+        'Origin': 'https://www.tarrmobiltv.hu',
+        'Referer': 'https://www.tarrmobiltv.hu/broadcast',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-origin',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 OPR/109.0.0.0',
         'X-Requested-With': 'XMLHttpRequest',
+        'sec-ch-ua': '"Opera";v="109", "Not:A-Brand";v="8", "Chromium";v="123"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
     }
     
     response_1 = requests.get(f'{base_url}/ajax/fp/main/device/{gen_WI_hash}', cookies=cookies_x, headers=headers_x, allow_redirects=False)
@@ -111,10 +119,18 @@ cookies = {
 
 headers = {
     'Accept': 'application/json, text/javascript, */*; q=0.01',
+    'Accept-Language': 'hu-HU,hu;q=0.9,en-US;q=0.8,en;q=0.7',
     'Connection': 'keep-alive',
-    'Origin': f'{base_url}',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+    'Origin': 'https://www.tarrmobiltv.hu',
+    'Referer': 'https://www.tarrmobiltv.hu/broadcast',
+    'Sec-Fetch-Dest': 'empty',
+    'Sec-Fetch-Mode': 'cors',
+    'Sec-Fetch-Site': 'same-origin',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 OPR/109.0.0.0',
     'X-Requested-With': 'XMLHttpRequest',
+    'sec-ch-ua': '"Opera";v="109", "Not:A-Brand";v="8", "Chromium";v="123"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Windows"',
 }
 
 if sys.version_info[0] == 3:
