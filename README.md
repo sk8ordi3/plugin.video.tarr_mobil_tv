@@ -3,6 +3,8 @@
 
 Kodi kiegészítő a tarrmobiltv.hu-hoz
 
+1.0.4 - PHPSESSID cookie kinyerése és használata
+
 1.0.3 - headers fix
 
 1.0.2 - felhasználónév vagy telefonszám használat hozzáadva
