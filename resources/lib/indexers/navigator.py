@@ -62,7 +62,7 @@ def fetch_and_set_token():
     
     randomHash = os.urandom(16).hex()
     gen_WI_hash = f'WI_{randomHash}'
-    
+
     cookies_x = {
         'TarrMobiltv[player]': 'html5',
         'TarrMobiltv[remember]': '1',
@@ -71,33 +71,30 @@ def fetch_and_set_token():
     }
     
     headers_x = {
-        'Accept': 'application/json, text/javascript, */*; q=0.01',
-        'Accept-Language': 'hu-HU,hu;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Connection': 'keep-alive',
-        'Origin': 'https://www.tarrmobiltv.hu',
-        'Referer': 'https://www.tarrmobiltv.hu/broadcast',
-        'Sec-Fetch-Dest': 'empty',
         'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-origin',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 OPR/109.0.0.0',
-        'X-Requested-With': 'XMLHttpRequest',
-        'sec-ch-ua': '"Opera";v="109", "Not:A-Brand";v="8", "Chromium";v="123"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 OPR/109.0.0.0'
     }
-    
+
     response_1 = requests.get(f'{base_url}/ajax/fp/main/device/{gen_WI_hash}', cookies=cookies_x, headers=headers_x, allow_redirects=False)
     res_headers_1 = response_1.headers["Set-Cookie"]
     
     tarr_device_WI = re.findall(r'TarrMobiltv\[device\]=(WI.*?);', str(res_headers_1))[0].strip()
     
     xbmcaddon.Addon().setSetting('tarr_device_WI', f'{tarr_device_WI}')
-    
+
     current_timestamp = int(time.time())
     xbmcaddon.Addon().setSetting('device_WI_timestamp', f'{current_timestamp}')
 
+    cookies_x['TarrMobiltv[device]'] = tarr_device_WI
+
+    response = requests.post(f'{base_url}/ajax/user/login/', cookies=cookies_x, headers = headers_x, data={"user": tarr_user, "pass": tarr_pass, "remember": "1"})
+    phpsessid = re.findall(r"PHPSESSID=(.*?);", str(response.headers["Set-Cookie"]))[0].strip()
+    xbmcaddon.Addon().setSetting("phpsessid", phpsessid)
+
+
 tarr_device_WI = addon.getSetting('tarr_device_WI')
 device_WI_timestamp_str = addon.getSetting('device_WI_timestamp')
+phpsessid = addon.getSetting("phpsessid")
 
 if not (tarr_device_WI and device_WI_timestamp_str):
     fetch_and_set_token()
@@ -115,22 +112,12 @@ cookies = {
     'TarrMobiltv[user]': f'{tarr_user_safe}',
     'TarrMobiltv[pass]': f'{tarr_pass}',
     'TarrMobiltv[device]': f'{tarr_device_WI}',
+    'PHPSESSID': phpsessid,
 }
 
 headers = {
-    'Accept': 'application/json, text/javascript, */*; q=0.01',
-    'Accept-Language': 'hu-HU,hu;q=0.9,en-US;q=0.8,en;q=0.7',
-    'Connection': 'keep-alive',
-    'Origin': 'https://www.tarrmobiltv.hu',
-    'Referer': 'https://www.tarrmobiltv.hu/broadcast',
-    'Sec-Fetch-Dest': 'empty',
     'Sec-Fetch-Mode': 'cors',
-    'Sec-Fetch-Site': 'same-origin',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 OPR/109.0.0.0',
-    'X-Requested-With': 'XMLHttpRequest',
-    'sec-ch-ua': '"Opera";v="109", "Not:A-Brand";v="8", "Chromium";v="123"',
-    'sec-ch-ua-mobile': '?0',
-    'sec-ch-ua-platform': '"Windows"',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 OPR/109.0.0.0'
 }
 
 if sys.version_info[0] == 3:
@@ -192,7 +179,7 @@ class navigator:
         import json
         
         data_s = requests.post(f'{base_url}/ajax/broadcast/getchannellist/', headers=headers, cookies=cookies).json()
-        
+
         extracted_data = []
         for ch_num, channel_info in data_s['channels'].items():
             channel_num = int(ch_num)
@@ -422,10 +409,10 @@ class navigator:
         from bs4 import BeautifulSoup
         
         data = {
-            'group': '1',
+            'group': '0',
             'category': movie_categ_id,
             'page': '1',
-            'perPage': '99',
+            'perPage': '12',
             'search': '',
             'ajaxContent': '1',
         }

@@ -1,3 +1,5 @@
+[B]1.0.4[/B]
+- PHPSESSID cookie kinyerése és használata
 [B]1.0.3[/B]
 - headers fix
 [B]1.0.2[/B]
