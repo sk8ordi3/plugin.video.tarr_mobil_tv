@@ -96,7 +96,7 @@ tarr_device_WI = addon.getSetting('tarr_device_WI')
 device_WI_timestamp_str = addon.getSetting('device_WI_timestamp')
 phpsessid = addon.getSetting("phpsessid")
 
-if not (tarr_device_WI and device_WI_timestamp_str):
+if not (tarr_device_WI and device_WI_timestamp_str and phpsessid):
     fetch_and_set_token()
 else:
     device_WI_timestamp = int(device_WI_timestamp_str)
