@@ -53,6 +53,7 @@ tarr_pass = addon.getSetting('password')
 if not tarr_user or not tarr_pass:
     xbmc.log("Username or password not set, opening settings", level=xbmc.LOGINFO)
     addon.openSettings()
+    exit()
 
 def fetch_and_set_session_cookie(tarr_device_WI):
     sessioncookie = addon.getSetting("sessioncookie")
