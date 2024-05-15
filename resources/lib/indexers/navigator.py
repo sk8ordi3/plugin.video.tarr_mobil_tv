@@ -123,9 +123,8 @@ def fetch_and_set_token():
         }
 
         response_1 = requests.get(f'{base_url}/ajax/fp/main/device/{gen_WI_hash}', cookies=cookies_x, headers=headers_x, allow_redirects=False)
-        res_headers_1 = response_1.headers["Set-Cookie"]
 
-        tarr_device_WI = re.findall(r'TarrMobiltv\[device\]=(WI.*?);', str(res_headers_1))[0].strip()
+        tarr_device_WI = response_1.cookies.get_dict()["TarrMobiltv[device]"]
 
         xbmcaddon.Addon().setSetting('tarr_device_WI', f'{tarr_device_WI}')
 
