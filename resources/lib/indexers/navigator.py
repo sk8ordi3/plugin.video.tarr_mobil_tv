@@ -54,57 +54,85 @@ if not tarr_user or not tarr_pass:
     xbmc.log("Username or password not set, opening settings", level=xbmc.LOGINFO)
     addon.openSettings()
 
+def fetch_and_set_session_cookie(tarr_device_WI):
+    sessioncookie = addon.getSetting("sessioncookie")
+    sessioncookie_timestamp = addon.getSetting("sessioncookie_timestamp")
+
+    if not (sessioncookie and sessioncookie_timestamp) or (int(time.time()) - int(sessioncookie_timestamp) > 60 * 10):
+        headers_x = {
+            'Sec-Fetch-Mode': 'cors',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 OPR/109.0.0.0'
+        }
+
+        if (sessioncookie and sessioncookie_timestamp):
+            xbmc.log(f'TarrMobiltv | v{version} | Kodi: {kodi_version[:5]} | checking session cookie validity', xbmc.LOGINFO)
+            cookies_x = {
+                'TarrMobiltv[player]': 'html5',
+                'TarrMobiltv[remember]': '1',
+                'TarrMobiltv[user]': tarr_user_safe,
+                'TarrMobiltv[pass]': tarr_pass,
+                'TarrMobiltv[device]': tarr_device_WI,
+                sessioncookie.split("=")[0]: sessioncookie.split("=")[1]
+            }
+            response = requests.post(f'{base_url}/ajax/broadcast/sessionurl/', cookies=cookies_x, headers=headers_x).json()
+            if response["status"]["code"] == 200:
+                xbmc.log(f'TarrMobiltv | v{version} | Kodi: {kodi_version[:5]} | session cookie is valid', xbmc.LOGINFO)
+                xbmcaddon.Addon().setSetting('sessioncookie_timestamp', f'{int(time.time())}')
+                return sessioncookie
+        xbmc.log(f'TarrMobiltv | v{version} | Kodi: {kodi_version[:5]} | no session cookie or session cookie is not valid, requesting new one', xbmc.LOGINFO)
+        cookies_x = {
+            'TarrMobiltv[player]': 'html5',
+            'TarrMobiltv[remember]': '1',
+            'TarrMobiltv[user]': tarr_user_safe,
+            'TarrMobiltv[pass]': tarr_pass,
+            'TarrMobiltv[device]': tarr_device_WI
+        }
+        response = requests.post(f'{base_url}/ajax/user/login/', cookies=cookies_x, headers = headers_x, data={"user": tarr_user, "pass": tarr_pass, "remember": "1"})
+        sessioncookie = re.search(r"([0-9]+)TarrMobiltvSe5510n=(.*?);", response.headers["Set-Cookie"])[0].replace(";", "").strip()
+        xbmcaddon.Addon().setSetting("sessioncookie", sessioncookie)
+        xbmcaddon.Addon().setSetting('sessioncookie_timestamp', f'{int(time.time())}')
+    else:
+        xbmc.log(f'TarrMobiltv | v{version} | Kodi: {kodi_version[:5]} | session cookie check less than 10 minutes ago. No need to check it.', xbmc.LOGINFO)
+    return sessioncookie
+
+
 def fetch_and_set_token():
-    
-    import requests
-    import time
-    import re
-    
-    randomHash = os.urandom(16).hex()
-    gen_WI_hash = f'WI_{randomHash}'
 
-    cookies_x = {
-        'TarrMobiltv[player]': 'html5',
-        'TarrMobiltv[remember]': '1',
-        'TarrMobiltv[user]': tarr_user_safe,
-        'TarrMobiltv[pass]': tarr_pass,
-    }
-    
-    headers_x = {
-        'Sec-Fetch-Mode': 'cors',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 OPR/109.0.0.0'
-    }
+    tarr_device_WI = addon.getSetting("tarr_device_WI")
+    device_WI_timestamp_str = addon.getSetting('device_WI_timestamp')
 
-    response_1 = requests.get(f'{base_url}/ajax/fp/main/device/{gen_WI_hash}', cookies=cookies_x, headers=headers_x, allow_redirects=False)
-    res_headers_1 = response_1.headers["Set-Cookie"]
-    
-    tarr_device_WI = re.findall(r'TarrMobiltv\[device\]=(WI.*?);', str(res_headers_1))[0].strip()
-    
-    xbmcaddon.Addon().setSetting('tarr_device_WI', f'{tarr_device_WI}')
+    if not (tarr_device_WI and device_WI_timestamp_str) or (int(time.time()) - int(device_WI_timestamp_str) > 365 * 24 * 60 * 60):
+        xbmc.log(f'TarrMobiltv | v{version} | Kodi: {kodi_version[:5]} | Requesting new device ID', xbmc.LOGINFO)
+        randomHash = os.urandom(16).hex()
+        gen_WI_hash = f'WI_{randomHash}'
 
-    current_timestamp = int(time.time())
-    xbmcaddon.Addon().setSetting('device_WI_timestamp', f'{current_timestamp}')
+        cookies_x = {
+            'TarrMobiltv[player]': 'html5',
+            'TarrMobiltv[remember]': '1',
+            'TarrMobiltv[user]': tarr_user_safe,
+            'TarrMobiltv[pass]': tarr_pass,
+        }
 
-    cookies_x['TarrMobiltv[device]'] = tarr_device_WI
+        headers_x = {
+            'Sec-Fetch-Mode': 'cors',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 OPR/109.0.0.0'
+        }
 
-    response = requests.post(f'{base_url}/ajax/user/login/', cookies=cookies_x, headers = headers_x, data={"user": tarr_user, "pass": tarr_pass, "remember": "1"})
-    phpsessid = re.findall(r"PHPSESSID=(.*?);", str(response.headers["Set-Cookie"]))[0].strip()
-    xbmcaddon.Addon().setSetting("phpsessid", phpsessid)
+        response_1 = requests.get(f'{base_url}/ajax/fp/main/device/{gen_WI_hash}', cookies=cookies_x, headers=headers_x, allow_redirects=False)
+        res_headers_1 = response_1.headers["Set-Cookie"]
 
+        tarr_device_WI = re.findall(r'TarrMobiltv\[device\]=(WI.*?);', str(res_headers_1))[0].strip()
 
-tarr_device_WI = addon.getSetting('tarr_device_WI')
-device_WI_timestamp_str = addon.getSetting('device_WI_timestamp')
-phpsessid = addon.getSetting("phpsessid")
+        xbmcaddon.Addon().setSetting('tarr_device_WI', f'{tarr_device_WI}')
 
-if not (tarr_device_WI and device_WI_timestamp_str and phpsessid):
-    fetch_and_set_token()
-else:
-    device_WI_timestamp = int(device_WI_timestamp_str)
-    current_timestamp = int(time.time())
-    one_year_in_seconds = 365 * 24 * 60 * 60
+        addon.setSetting('device_WI_timestamp', f'{int(time.time())}')
+        addon.setSetting("sessioncookie", "")
+    return tarr_device_WI
 
-    if current_timestamp - device_WI_timestamp > one_year_in_seconds:
-        fetch_and_set_token()
+tarr_device_WI = None
+sessioncookie = None
+tarr_device_WI = fetch_and_set_token()
+sessioncookie = fetch_and_set_session_cookie(tarr_device_WI)
 
 cookies = {
     'TarrMobiltv[player]': 'html5',
@@ -112,7 +140,7 @@ cookies = {
     'TarrMobiltv[user]': f'{tarr_user_safe}',
     'TarrMobiltv[pass]': f'{tarr_pass}',
     'TarrMobiltv[device]': f'{tarr_device_WI}',
-    'PHPSESSID': phpsessid,
+    sessioncookie.split("=")[0]: sessioncookie.split("=")[1]
 }
 
 headers = {
@@ -175,8 +203,6 @@ class navigator:
         self.endDirectory('series')
 
     def GetLiveCh(self, channel_num, title, channel_logo, next_title, channel_current_length):
-        import requests
-        import json
         
         data_s = requests.post(f'{base_url}/ajax/broadcast/getchannellist/', headers=headers, cookies=cookies).json()
 
@@ -209,7 +235,6 @@ class navigator:
         self.endDirectory('series')
 
     def ExtrLiveCh(self, channel_num, title, channel_logo, url, next_title, channel_current_length):
-        import requests
         
         response_1 = requests.post(f'{base_url}/ajax/broadcast/sessionurl/', cookies=cookies, headers=headers).json()
         
@@ -260,7 +285,6 @@ class navigator:
         self.endDirectory('series')
 
     def ExtrArchiveTv(self, channel_num, title, channel_logo, class_picture, class_time_text, class_run_time_seconds, jump_to_show_data_id, data_name): 
-        import requests
         
         data = {
             'channel': f'{channel_num}',
@@ -297,7 +321,6 @@ class navigator:
         self.endDirectory('series')
 
     def ExtrArchiveHls(self, channel_num, title, channel_logo, class_picture, class_time_text, class_run_time_seconds, jump_to_show_data_id, data_name):
-        import requests
         
         response_1 = requests.post(f'{base_url}/ajax/catchup/sessionurl/', cookies=cookies, headers=headers).json()
         
@@ -324,9 +347,6 @@ class navigator:
 
 
     def GetFilmtarEpic(self, cleaned_title, type_tag, release_year, data_show_id, img_src):
-        import requests
-        import re
-        from bs4 import BeautifulSoup
         
         data = {
             'group': '3',
@@ -358,9 +378,6 @@ class navigator:
         self.endDirectory('series')
 
     def ExtrFilmtarEpic(self, cleaned_title, type_tag, release_year, data_show_id, img_src, epic_episode_id, epic_episode_title, epic_current_season):
-        import requests
-        import re
-        from bs4 import BeautifulSoup
         
         data = {
             'vodId': data_show_id,
@@ -387,7 +404,6 @@ class navigator:
         self.endDirectory('series')
 
     def ExtrFilmtarEpicHls(self, cleaned_title, type_tag, release_year, data_show_id, img_src, epic_episode_id, epic_episode_title, epic_current_season):
-        import requests
         
         response_1 = requests.post(f'{base_url}/ajax/vod/sessionurl/', cookies=cookies, headers=headers).json()
         
@@ -404,9 +420,6 @@ class navigator:
 
 
     def GetFilmtarFilmbox(self, movie_categ_id, title, release_year, data_show_id, img_src):
-        import requests
-        import re
-        from bs4 import BeautifulSoup
         
         data = {
             'group': '0',
@@ -434,7 +447,6 @@ class navigator:
         self.endDirectory('movies')        
 
     def ExtrFilmtarFilmbox(self, movie_categ_id, title, release_year, data_show_id, img_src, description):
-        import requests
         
         data = {
             'vodId': data_show_id,
@@ -453,7 +465,6 @@ class navigator:
         self.endDirectory('series')
 
     def ExtrFilmtarFilmboxHls(self, movie_categ_id, title, release_year, data_show_id, img_src, description):
-        import requests
         
         response_1 = requests.post(f'{base_url}/ajax/vod/sessionurl/', cookies=cookies, headers=headers).json()
         
