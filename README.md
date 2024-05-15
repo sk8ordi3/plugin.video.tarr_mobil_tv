@@ -3,6 +3,8 @@
 
 Kodi kiegészítő a tarrmobiltv.hu-hoz
 
+1.0.6 - Login javítása
+
 1.0.5 - Login javítása
 
 1.0.4 - Login javítása
