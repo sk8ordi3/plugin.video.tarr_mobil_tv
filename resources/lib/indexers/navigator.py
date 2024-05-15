@@ -88,9 +88,13 @@ def fetch_and_set_session_cookie(tarr_device_WI):
             'TarrMobiltv[device]': tarr_device_WI
         }
         response = requests.post(f'{base_url}/ajax/user/login/', cookies=cookies_x, headers = headers_x, data={"user": tarr_user, "pass": tarr_pass, "remember": "1"})
-        sessioncookie = re.search(r"([0-9]+)TarrMobiltvSe5510n=(.*?);", response.headers["Set-Cookie"])[0].replace(";", "").strip()
-        xbmcaddon.Addon().setSetting("sessioncookie", sessioncookie)
-        xbmcaddon.Addon().setSetting('sessioncookie_timestamp', f'{int(time.time())}')
+        for cookie in response.cookies:
+            if cookie.discard:
+                sessioncookie = f'{cookie.name}={cookie.value}'
+                xbmcaddon.Addon().setSetting("sessioncookie", sessioncookie)
+                xbmcaddon.Addon().setSetting('sessioncookie_timestamp', f'{int(time.time())}')
+                break
+        xbmc.log(f'TarrMobiltv | v{version} | Kodi: {kodi_version[:5]} | session cookie not found in answer', xbmc.LOGERROR)
     else:
         xbmc.log(f'TarrMobiltv | v{version} | Kodi: {kodi_version[:5]} | session cookie check less than 10 minutes ago. No need to check it.', xbmc.LOGINFO)
     return sessioncookie
