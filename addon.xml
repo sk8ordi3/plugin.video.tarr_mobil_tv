@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.tarr_mobil_tv" name="TarrMobiltv" version="1.0.5" provider-name="heg, vargalex">
+<addon id="plugin.video.tarr_mobil_tv" name="TarrMobiltv" version="1.0.6" provider-name="heg, vargalex">
 	<requires>
 		<import addon="script.module.beautifulsoup4" version="4.6.2"/>
 		<import addon="script.module.requests" version="2.22.0"/>
@@ -16,6 +16,7 @@
 		<language>hu</language>
 		<platform>all</platform>
 		<news>
+			1.0.6 - Login javítása
 			1.0.5 - Login javítása
 			1.0.4 - Login javítása
 			1.0.3 - headers fix
