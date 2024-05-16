@@ -21,7 +21,7 @@
 import os, sys, re, xbmc, xbmcgui, xbmcplugin, xbmcaddon, locale, base64
 from bs4 import BeautifulSoup
 import requests
-import urllib.parse
+from urllib.parse import quote
 import resolveurl as urlresolver
 from resources.lib.modules.utils import py2_decode, py2_encode
 import html
@@ -43,11 +43,6 @@ base_url = 'https://www.tarrmobiltv.hu'
 addon = xbmcaddon.Addon('plugin.video.tarr_mobil_tv')
 
 tarr_user = addon.getSetting('username')
-if re.search(r'[+]', tarr_user):
-    tarr_user_safe = urllib.parse.quote_plus(tarr_user)
-else:
-    tarr_user_safe = tarr_user
-
 tarr_pass = addon.getSetting('password')
 
 if not tarr_user or not tarr_pass:
@@ -70,8 +65,8 @@ def fetch_and_set_session_cookie(tarr_device_WI):
             cookies_x = {
                 'TarrMobiltv[player]': 'html5',
                 'TarrMobiltv[remember]': '1',
-                'TarrMobiltv[user]': tarr_user_safe,
-                'TarrMobiltv[pass]': tarr_pass,
+                'TarrMobiltv[user]': quote(tarr_user),
+                'TarrMobiltv[pass]': quote(tarr_pass),
                 'TarrMobiltv[device]': tarr_device_WI,
                 sessioncookie.split("=")[0]: sessioncookie.split("=")[1]
             }
@@ -85,8 +80,8 @@ def fetch_and_set_session_cookie(tarr_device_WI):
         cookies_x = {
             'TarrMobiltv[player]': 'html5',
             'TarrMobiltv[remember]': '1',
-            'TarrMobiltv[user]': tarr_user_safe,
-            'TarrMobiltv[pass]': tarr_pass,
+            'TarrMobiltv[user]': quote(tarr_user),
+            'TarrMobiltv[pass]': quote(tarr_pass),
             'TarrMobiltv[device]': tarr_device_WI
         }
         response = requests.post(f'{base_url}/ajax/user/login/', cookies=cookies_x, headers = headers_x, data={"user": tarr_user, "pass": tarr_pass, "remember": "1"})
@@ -116,8 +111,8 @@ def fetch_and_set_token():
         cookies_x = {
             'TarrMobiltv[player]': 'html5',
             'TarrMobiltv[remember]': '1',
-            'TarrMobiltv[user]': tarr_user_safe,
-            'TarrMobiltv[pass]': tarr_pass,
+            'TarrMobiltv[user]': quote(tarr_user),
+            'TarrMobiltv[pass]': quote(tarr_pass),
         }
 
         headers_x = {
@@ -143,8 +138,8 @@ sessioncookie = fetch_and_set_session_cookie(tarr_device_WI)
 cookies = {
     'TarrMobiltv[player]': 'html5',
     'TarrMobiltv[remember]': '1',
-    'TarrMobiltv[user]': f'{tarr_user_safe}',
-    'TarrMobiltv[pass]': f'{tarr_pass}',
+    'TarrMobiltv[user]': quote(tarr_user),
+    'TarrMobiltv[pass]': quote(tarr_pass),
     'TarrMobiltv[device]': f'{tarr_device_WI}',
     sessioncookie.split("=")[0]: sessioncookie.split("=")[1]
 }
