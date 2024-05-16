@@ -81,6 +81,7 @@ def fetch_and_set_session_cookie(tarr_device_WI):
                 xbmcaddon.Addon().setSetting('sessioncookie_timestamp', f'{int(time.time())}')
                 return sessioncookie
         xbmc.log(f'TarrMobiltv | v{version} | Kodi: {kodi_version[:5]} | no session cookie or session cookie is not valid, requesting new one', xbmc.LOGINFO)
+        sessioncookie = None
         cookies_x = {
             'TarrMobiltv[player]': 'html5',
             'TarrMobiltv[remember]': '1',
@@ -95,7 +96,8 @@ def fetch_and_set_session_cookie(tarr_device_WI):
                 xbmcaddon.Addon().setSetting("sessioncookie", sessioncookie)
                 xbmcaddon.Addon().setSetting('sessioncookie_timestamp', f'{int(time.time())}')
                 break
-        xbmc.log(f'TarrMobiltv | v{version} | Kodi: {kodi_version[:5]} | session cookie not found in answer', xbmc.LOGERROR)
+        if not sessioncookie:
+            xbmc.log(f'TarrMobiltv | v{version} | Kodi: {kodi_version[:5]} | session cookie not found in answer', xbmc.LOGERROR)
     else:
         xbmc.log(f'TarrMobiltv | v{version} | Kodi: {kodi_version[:5]} | session cookie check less than 10 minutes ago. No need to check it.', xbmc.LOGINFO)
     return sessioncookie
